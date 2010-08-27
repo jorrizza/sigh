@@ -30,3 +30,8 @@ are within predefined bounds. If they exceed, it should notify
 the proper authorities.
 
 Simple, isn't it?
+
+Using:
+	- Ruby
+	- Sinatra
+	- Redis (server and Ruby gem)
