@@ -33,5 +33,5 @@ Simple, isn't it?
 
 Using:
 	- Ruby
-	- Sinatra
-	- Redis (server and Ruby gem)
+	- Redis
+	- Gems: SystemTimer, sinatra, redis
