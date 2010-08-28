@@ -34,4 +34,5 @@ Simple, isn't it?
 Using:
 	- Ruby
 	- Redis
-	- Gems: SystemTimer, sinatra, redis
+	- Flot
+	- Gems: SystemTimer, sinatra, redis, daemons
