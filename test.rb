@@ -1,16 +1,16 @@
-require 'lib/sigh'
+require 'collector/collector'
 
-m = Sigh::Measurement.new('zitvlak', 'network', 'eth0_traffic', 'Mbit/s', 1100.0)
-m.close
-m = Sigh::Measurement.new('zitvlak', 'network', 'eth1_traffic', 'Mbit/s', 1100.0)
-p m.hourly_values
-p m.latest_value
-p m.last_time
-m.close
+#m = Sigh::Measurement.new('zitvlak', 'network', 'eth0_traffic', 'Mbit/s', 1100.0)
+#m.store 112.0
+#m.close
 
-hostlist = Sigh::HostList.new
-hostlist.each do |h|
-  puts h
-  host = Sigh::Host.new h
-  p host.collectors
+Sigh::Collector.collects do
+  type 'system'
+  name 'load'
+  unit 'processes'
+  upper_bound 8.00
+
+  measure do
+    File.read('/proc/loadavg').split[0].to_f
+  end
 end

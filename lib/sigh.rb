@@ -115,7 +115,7 @@ module Sigh
     def last_time
       last_time = @redis.get(key('last_time'))
       return Time.parse last_time if last_time
-      Time.now
+      Time.now # Probably...
     end
 
     def latest_value
