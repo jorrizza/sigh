@@ -2,7 +2,7 @@
 # Aiming at some sort of DSL for the individual collectors
 
 require 'socket'
-require File.join(File.dirname(__FILE__), '..', 'lib', 'sigh')
+require File.join(File.dirname(__FILE__), 'sigh')
 
 module Sigh
   class Collector
