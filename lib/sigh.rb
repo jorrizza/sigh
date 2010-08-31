@@ -71,10 +71,10 @@ module Sigh
       if i.modulo(24) == 0
         @redis.lpop key('daily')
         value = 0.0
-        hourly_values.each do |v|
+        @redis.lrange(key('hourly'), -1, -24).each do |v|
           value += v.to_f
         end
-        value /= Sigh::RESOLUTION
+        value /= 24
         @redis.rpush key('daily'), value
       end
 
@@ -82,10 +82,10 @@ module Sigh
       if i.modulo(168) == 0
         @redis.lpop key('weekly')
         value = 0.0
-        daily_values.each do |v|
+        @redis.lrange(key('daily'), -1, -7).each do |v|
           value += v.to_f
         end
-        value /= Sigh::RESOLUTION
+        value /= 7
         @redis.rpush key('weekly'), value
       end
 
@@ -93,21 +93,21 @@ module Sigh
       if i.modulo(720) == 0 # 30 days
         @redis.lpop key('monthly')
         value = 0.0
-        weekly_values.each do |v|
+        @redis.lrange(key('daily'), -1, -30).each do |v|
           value += v.to_f
         end
-        value /= Sigh::RESOLUTION
+        value /= 30
         @redis.rpush key('monthly'), value
       end
 
       # Update yearly values.
-      if i.modulo(8760) == 0 # 365 days
+      if i.modulo(8640) == 0 # 360 days (works better with modulo)
         @redis.lpop key('yearly')
         value = 0.0
-        monthly_values.each do |v|
+        @redis.lrange(key('monthly'), -1, -12).each do |v|
           value += v.to_f
         end
-        value /= Sigh::RESOLUTION
+        value /= 12
         @redis.rpush key('yearly'), value
       end
     end
