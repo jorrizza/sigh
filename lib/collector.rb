@@ -56,7 +56,7 @@ module Sigh
 
       # Check the collector
       unless @value.is_a? Float
-        $stderr.puts "Your measure function doesn't product a Float!"
+        $stderr.puts "Your measure function doesn't produce a Float!"
         exit
       end
       {
