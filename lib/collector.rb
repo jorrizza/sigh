@@ -98,6 +98,19 @@ module Sigh
       else
         # For real now, we'll add a measurement
         m = Sigh::Measurement.new @host, @type, @name, @unit, @upper_bound
+
+        # If the last store was longer ago than twice our interval,
+        # fill 'er up with zeroes.
+        # If your reboot takes really long, this will take a while.
+        downtime = Time.now - m.last_time
+        if downtime >= Sigh::INTERVAL * 2
+          missed_intervals = (downtime / Sigh::INTERVAL).to_i
+          $stderr.puts "Missed #{missed_intervals} intervals! Catching up..."
+          missed_intervals.times do
+            m.store 0.0
+          end
+        end
+        
         m.store @value
         m.close
       end
