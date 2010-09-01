@@ -1,5 +1,3 @@
-require 'lib/collector'
-
 Sigh::Collector.collects do
   type 'system'
   name 'load'

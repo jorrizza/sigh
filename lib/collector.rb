@@ -77,10 +77,10 @@ module Sigh
       end
 
       # We support a dryrun to test the collector
-      if ARGV[0] == '--dryrun'
+      if ARGV[1] == '--dryrun'
         puts "#{@host}/#{@type}/#{@name} = #{@value} #{@unit} (max #{@upper_bound} #{@unit})"
 
-      elsif ARGV[0] == '--monitor'
+      elsif ARGV[1] == '--monitor'
         # Monitor our plugin (when it's running in the background)
         m = Sigh::Measurement.new @host, @type, @name, @unit, @upper_bound
 

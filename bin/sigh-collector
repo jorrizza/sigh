@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+#
+# Method of starting a collector
+#
+
+$:.push File.join(File.dirname(__FILE__), '..', 'lib')
+require 'collector'
+
+unless ARGV[0]
+  $stderr.puts "Sigh collector runner.\nUsage: #{$0} [collector] [--dryrun | --monitor | ]"
+  exit 1
+end
+
+the_collector = File.join(File.dirname(__FILE__), '..', 'collectors', ARGV[0] + '.rb')
+unless File.exists? the_collector
+  $stderr.puts "Sigh collector '#{ARGV[0]}' does not exist!"
+  exit 1
+end
+
+load the_collector
