@@ -1,3 +1,5 @@
+# Sigh system collector collecting Linux memory usage
+
 Sigh::Collector.collects do
   type 'system'
   name 'memory'
