@@ -5,6 +5,8 @@ require 'socket'
 require File.join(File.dirname(__FILE__), 'sigh')
 
 module Sigh
+  COLLECTORS = File.join(File.dirname(__FILE__), '..', 'collectors')
+  
   class Collector
     def self.collects(&block)
       collector = Collector.new
@@ -59,6 +61,7 @@ module Sigh
         $stderr.puts "Your measure function doesn't produce a Float!"
         exit
       end
+      
       {
         :host => String,
         :type => String,
@@ -67,6 +70,14 @@ module Sigh
         :upper_bound => Float
       }.each do |check, type|
         value = self.send check
+
+        # Every value might also be presented as a Proc. Run
+        # it before checking.
+        if value.is_a? Proc
+          self.send check, value.call
+          value = self.send check
+        end
+        
         unless value
           $stderr.puts "You forgot to specify #{check.to_s}"
           exit
