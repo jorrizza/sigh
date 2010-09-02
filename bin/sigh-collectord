@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+$:.push File.join(File.dirname(__FILE__), '..', 'lib')
+require 'collector_em'
+require 'daemons'
+
+# Daemonize
+options = {
+  :dir_mode => :normal,
+  :dir => Sigh::COLLECTOR_RUNDIR,
+  :multiple => false,
+  :ontop => false,
+  :mode => :exec,
+  :backtrace => true,
+  :monitor => false
+}
+Daemons.run_proc 'sigh-collectord', options do
+  # And run the collector daemon code
+  Sigh::CollectorDaemon.run
+end

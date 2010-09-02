@@ -5,8 +5,6 @@ require 'socket'
 require File.join(File.dirname(__FILE__), 'sigh')
 
 module Sigh
-  COLLECTORS = File.join(File.dirname(__FILE__), '..', 'collectors')
-  
   class Collector
     def self.collects(&block)
       collector = Collector.new

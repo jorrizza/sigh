@@ -35,4 +35,5 @@ Using:
 	- Ruby
 	- Redis
 	- Flot
-	- Gems: SystemTimer, sinatra, redis, daemons
+	- Gems: SystemTimer, sinatra, redis, daemons,
+	        eventmachine
