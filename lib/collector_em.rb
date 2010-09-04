@@ -21,7 +21,10 @@ module Sigh
                 # Daemonize every collector
                 collector_program = File.join(Sigh::PATH, 'sigh-collector')
                 collector = file.sub /\.rb$/i, ''
-                Process.detach fork { `#{collector_program} #{collector} 2>&1 > /dev/null` }
+                # The following throws EBADF in Daemons:
+                # Process.detach fork { `#{collector_program} #{collector} 2>&1 > /dev/null` }
+                # So this'll have to do.
+                `#{collector_program} #{collector} 2>&1 > /dev/null &`
               end
             end
           dir.close
