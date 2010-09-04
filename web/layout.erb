@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link type="text/css" href="/css/style.css" rel="stylesheet" media="screen"> 
+    <title>
+      Sigh Monitoring | 
+      <% if @grapher %>
+        <%=h @grapher %>
+      <% else %>
+        Index
+      <% end %>
+    </title>
+  </head>
+  <body>
+    <header>
+      <aside>
+        Horses are not monitored.&nbsp;&nbsp;&nbsp;<br>
+        The rest is.
+      </aside>
+      <h1>
+        <a href="/">Sigh Monitoring</a>
+      </h1>
+    </header>
+    <nav>
+      <% @hosts.each do |host| %>
+        <h2><%=h host[:name] %></h2>
+        <% host[:collectors].each do |type, collectors| %>
+          <h3><%=h type %></h3>
+          <% collectors.each do |collector| %>
+            <a href="<%=h('/' + host[:name] + '/' + type + '/' + collector[:name]) %>"><%=h collector[:name] %></a><br>
+          <% end %>
+        <% end %>
+      <% end %>
+    </nav>
+    <div id="content">
+      <%=yield %>
+    </div>
+  </body>
+</html>

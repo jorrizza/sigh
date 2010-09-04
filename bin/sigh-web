@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+
+$:.push File.join(File.dirname(__FILE__), '..', 'lib')
+require 'rubygems'
+require 'sinatra'
+require 'sigh'
+
+# Where our views and statics are served from.
+set :public, File.join(File.dirname(__FILE__), '..', 'web', 'static')
+set :views, File.join(File.dirname(__FILE__), '..', 'web')
+
+# A friendly error message.
+error 400..510 do
+  "Sigh doesn't understand, or it has borked itself."
+end
+
+# HTML output filtering.
+helpers do
+  def h(string)
+    Rack::Utils.escape_html string
+  end
+end
+
+# The index.
+get '/' do
+  @hosts = Array.new
+  Sigh::HostList.new.each do |hostname|
+    host = Sigh::Host.new hostname
+    @hosts << {
+      :name => hostname,
+      :collectors => host.collectors
+    }
+  end
+  
+  erb :index
+end
+
+# Graphers.
+get '/:host/:type/:name' do
+  @grapher = request.env['PATH_INFO'].sub /^\//, ''
+  
+  @hosts = Array.new
+  Sigh::HostList.new.each do |hostname|
+    host = Sigh::Host.new hostname
+    @hosts << {
+      :name => hostname,
+      :collectors => host.collectors
+    }
+  end
+  
+  erb :grapher
+end
