@@ -128,32 +128,47 @@ module Sigh
     end
 
     def hourly_values
+      tick = Sigh::INTERVAL
+      time = last_time - Sigh::RESOLUTION * tick + last_time.utc_offset
       @redis.lrange(key('hourly'), 0, -1).map do |v|
-        v.to_f
+        time += tick
+        [time.to_i * 1000, v.to_f]
       end
     end
 
     def daily_values
+      tick = Sigh::INTERVAL * 24
+      time = last_time - Sigh::RESOLUTION * tick + last_time.utc_offset
       @redis.lrange(key('daily'), 0, -1).map do |v|
-        v.to_f
+        time += tick
+        [time.to_i * 1000, v.to_f]
       end
     end
 
     def weekly_values
+      tick = Sigh::INTERVAL * 168
+      time = last_time - Sigh::RESOLUTION * tick + last_time.utc_offset
       @redis.lrange(key('weekly'), 0, -1).map do |v|
-        v.to_f
+        time += tick
+        [time.to_i * 1000, v.to_f]
       end
     end
 
     def monthly_values
+      tick = Sigh::INTERVAL * 720
+      time = last_time - Sigh::RESOLUTION * tick + last_time.utc_offset
       @redis.lrange(key('monthly'), 0, -1).map do |v|
-        v.to_f
+        time += tick
+        [time.to_i * 1000, v.to_f]
       end
     end
 
     def yearly_values
+      tick = Sigh::INTERVAL * 8640
+      time = last_time - Sigh::RESOLUTION * tick - last_time.utc_offset
       @redis.lrange(key('yearly'), 0, -1).map do |v|
-        v.to_f
+        time += tick
+        [time.to_i * 1000, v.to_f]
       end
     end
 

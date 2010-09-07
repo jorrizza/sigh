@@ -1,27 +1,21 @@
-/* Makes Sigh single-dimension arrays into multi-dimension arrays
- * flot uses. */
-function sigh_flotdata (data) {
-  var r = [];
-
-  for (var i = 0; i < data.length; i++) {
-    r.push([i, data[i]]);
-  }
-
-  return [{
-            data: r,
-            color: '#0000FF',
-            label: label
-          }];
-}
-
 function sigh_update_hourly () {
   var hourly = $('#hourly');
   if (hourly) {
     $.ajax({
              dataType: 'json',
              url: 'hourly',
-             success: function(data) {
-               $.plot(hourly, sigh_flotdata(data));
+             success: function (data) {
+               $.plot(hourly, [{
+                        data: data,
+                        label: label,
+                        color: '#0000FF'
+                      }], {
+                        xaxis: {
+                          mode: 'time',
+                          timeformat: '%H:%M',
+                          minTickSize: [10, "minute"]
+                        }
+                      });
              }
            });
   }
@@ -40,8 +34,18 @@ $(function () {
     $.ajax({
              dataType: 'json',
              url: 'daily',
-             success: function(data) {
-               $.plot(daily, sigh_flotdata(data));
+             success: function (data) {
+               $.plot(daily, [{
+                        data: data,
+                        label: label,
+                        color: '#0000FF'
+                      }], {
+                        xaxis: {
+                          mode: 'time',
+                          timeformat: '%H:%M',
+                          minTickSize: [1, "hour"]
+                        }
+                      });
              }
            });
   }
@@ -49,8 +53,18 @@ $(function () {
     $.ajax({
              dataType: 'json',
              url: 'weekly',
-             success: function(data) {
-               $.plot(weekly, sigh_flotdata(data));
+             success: function (data) {
+               $.plot(weekly, [{
+                        data: data,
+                        label: label,
+                        color: '#0000FF'
+                      }], {
+                        xaxis: {
+                          mode: 'time',
+                          timeformat: '%y-%m-%d',
+                          minTickSize: [1, "day"]
+                        }
+                      });
              }
            });
   }
@@ -58,8 +72,18 @@ $(function () {
     $.ajax({
              dataType: 'json',
              url: 'monthly',
-             success: function(data) {
-               $.plot(monthly, sigh_flotdata(data));
+             success: function (data) {
+               $.plot(monthly, [{
+                        data: data,
+                        label: label,
+                        color: '#0000FF'
+                      }], {
+                        xaxis: {
+                          mode: 'time',
+                          timeformat: '%y-%m-%d',
+                          minTickSize: [3, "day"]
+                        }
+                      });
              }
            });
   }
@@ -67,8 +91,18 @@ $(function () {
     $.ajax({
              dataType: 'json',
              url: 'yearly',
-             success: function(data) {
-               $.plot(yearly, sigh_flotdata(data));
+             success: function (data) {
+               $.plot(yearly, [{
+                        data: data,
+                        label: label,
+                        color: '#0000FF'
+                      }], {
+                        xaxis: {
+                          mode: 'time',
+                          timeformat: '%y-%m',
+                          minTickSize: [1, "month"]
+                        }
+                      });
              }
            });
   }
