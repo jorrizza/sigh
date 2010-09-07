@@ -36,4 +36,4 @@ Using:
 	- Redis
 	- Flot
 	- Gems: SystemTimer, sinatra, redis, daemons,
-	        eventmachine
+	        eventmachine, json, (thin)

@@ -25,7 +25,7 @@ module Sigh
   # A measurement class to ease the creation and reading of
   # measurements in the Redis store.
   class Measurement
-    def initialize(host, type, name, unit, upper_bound)
+    def initialize(host, type, name, unit = nil, upper_bound = nil)
       @prefix = Sigh::P + Sigh::S + host + Sigh::S + type + Sigh::S + name
 
       @redis = Redis.new Sigh::REDIS
@@ -49,8 +49,8 @@ module Sigh
       end
 
       # Set the unit and upper bound
-      @redis.set key('unit'), unit
-      @redis.set key('upper_bound'), upper_bound
+      @redis.set key('unit'), unit if unit
+      @redis.set key('upper_bound'), upper_bound if upper_bound
     end
 
     # Unused, but may come in handy.
@@ -76,7 +76,7 @@ module Sigh
       if i.modulo(24) == 0
         @redis.lpop key('daily')
         value = 0.0
-        @redis.lrange(key('hourly'), -1, -24).each do |v|
+        @redis.lrange(key('hourly'), -24, -1).each do |v|
           value += v.to_f
         end
         value /= 24
@@ -87,7 +87,7 @@ module Sigh
       if i.modulo(168) == 0
         @redis.lpop key('weekly')
         value = 0.0
-        @redis.lrange(key('daily'), -1, -7).each do |v|
+        @redis.lrange(key('daily'), -7, -1).each do |v|
           value += v.to_f
         end
         value /= 7
@@ -98,7 +98,7 @@ module Sigh
       if i.modulo(720) == 0 # 30 days
         @redis.lpop key('monthly')
         value = 0.0
-        @redis.lrange(key('daily'), -1, -30).each do |v|
+        @redis.lrange(key('daily'), -30, -1).each do |v|
           value += v.to_f
         end
         value /= 30
@@ -109,7 +109,7 @@ module Sigh
       if i.modulo(8640) == 0 # 360 days (works better with modulo)
         @redis.lpop key('yearly')
         value = 0.0
-        @redis.lrange(key('monthly'), -1, -12).each do |v|
+        @redis.lrange(key('monthly'), -12, -1).each do |v|
           value += v.to_f
         end
         value /= 12
@@ -155,6 +155,10 @@ module Sigh
       @redis.lrange(key('yearly'), 0, -1).map do |v|
         v.to_f
       end
+    end
+
+    def unit
+      @redis.get key('unit')
     end
 
     # Be nice to Redis.
@@ -215,13 +219,11 @@ module Sigh
 
       @redis.keys(Sigh::P + Sigh::S + @name + Sigh::S + '*' + Sigh::S + 'upper_bound').each do |key|
         collector, name = key.split(Sigh::S)[2], key.split(Sigh::S)[3]
-        unit = @redis.get(Sigh::P + Sigh::S + @name + Sigh::S + collector + Sigh::S + name + Sigh::S + 'unit')
         upper_bound = @redis.get(Sigh::P + Sigh::S + @name + Sigh::S + collector + Sigh::S + name + Sigh::S + 'upper_bound')
         coll[collector] = Array.new unless coll[collector]
         coll[collector] << {
           :name => name,
-          :upper_bound => upper_bound.to_f,
-          :unit => unit
+          :upper_bound => upper_bound.to_f
         }
       end
 

@@ -3,6 +3,7 @@
 $:.push File.join(File.dirname(__FILE__), '..', 'lib')
 require 'rubygems'
 require 'sinatra'
+require 'json'
 require 'sigh'
 
 # Where our views and statics are served from.
@@ -35,10 +36,47 @@ get '/' do
   erb :index
 end
 
-# Graphers.
-get '/:host/:type/:name' do
-  @grapher = request.env['PATH_INFO'].sub /^\//, ''
+# Grapher JSON data
+get '/:host/:type/:name/:graph' do
+  content_type :json
   
+  # Measurement get
+  begin
+    measurement = Sigh::Measurement.new params[:host], params[:type], params[:name]
+  rescue
+    halt 500, $!
+  end
+
+  # Get the right set of data
+  case params[:graph]
+  when 'latest_value'
+    return measurement.latest_value.to_json
+  when 'last_time'
+    return measurement.last_time.to_json
+  else
+    call = (params[:graph] + '_values').to_sym
+    if measurement.respond_to? call
+      return (measurement.send call).to_json
+    else
+      halt 500
+    end
+  end
+end
+
+# Graphers.
+get '/:host/:type/:name/' do
+  # Measurement get
+  begin
+    measurement = Sigh::Measurement.new params[:host], params[:type], params[:name]
+  rescue
+    halt 500, $!
+  end
+
+  # Set the title, interval and label
+  @grapher = request.env['PATH_INFO'].sub(/^\//, '').sub(/\/$/, '')
+  @label = measurement.unit
+  @interval = Sigh::INTERVAL
+
   @hosts = Array.new
   Sigh::HostList.new.each do |hostname|
     host = Sigh::Host.new hostname
@@ -47,6 +85,8 @@ get '/:host/:type/:name' do
       :collectors => host.collectors
     }
   end
+
+  measurement.close
   
   erb :grapher
 end

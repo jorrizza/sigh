@@ -3,7 +3,11 @@
   <head>
     <link rel="shortcut icon" href="/favicon.ico">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link type="text/css" href="/css/style.css" rel="stylesheet" media="screen"> 
+    <link type="text/css" href="/css/style.css" rel="stylesheet" media="screen">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.flot.min.js"></script>
+    <script type="text/javascript" src="/js/excanvas.min.js"></script>
+    <script type="text/javascript" src="/js/sigh.js"></script>
     <title>
       Sigh Monitoring | 
       <% if @grapher %>
@@ -29,7 +33,7 @@
         <% host[:collectors].each do |type, collectors| %>
           <h3><%=h type %></h3>
           <% collectors.each do |collector| %>
-            <a href="<%=h('/' + host[:name] + '/' + type + '/' + collector[:name]) %>"><%=h collector[:name] %></a><br>
+            <a href="<%=h('/' + host[:name] + '/' + type + '/' + collector[:name] + '/') %>"><%=h collector[:name] %></a><br>
           <% end %>
         <% end %>
       <% end %>
