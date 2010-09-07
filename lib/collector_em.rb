@@ -24,7 +24,6 @@ module Sigh
                 # The following throws EBADF in Daemons:
                 # Process.detach fork { `#{collector_program} #{collector} 2>&1 > /dev/null` }
                 # So this'll have to do.
-                puts "#{collector_program} #{collector} 2>&1 > /dev/null &"
                 system "#{collector_program} #{collector} 2>&1 > /dev/null &"
               end
             end
