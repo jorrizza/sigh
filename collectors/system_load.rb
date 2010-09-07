@@ -3,7 +3,7 @@
 Sigh::Collector.collects do
   type 'system'
   name 'load'
-  unit 'processes'
+  unit 'Processes'
   upper_bound lambda {
     # Simple rule of thumb: 2x number of processors
     # Warning: this is situation and configuration dependant

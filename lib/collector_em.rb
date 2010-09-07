@@ -24,10 +24,11 @@ module Sigh
                 # The following throws EBADF in Daemons:
                 # Process.detach fork { `#{collector_program} #{collector} 2>&1 > /dev/null` }
                 # So this'll have to do.
-                `#{collector_program} #{collector} 2>&1 > /dev/null &`
+                puts "#{collector_program} #{collector} 2>&1 > /dev/null &"
+                system "#{collector_program} #{collector} 2>&1 > /dev/null &"
               end
             end
-          dir.close
+            dir.close
           }
         end
       rescue
