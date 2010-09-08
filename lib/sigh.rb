@@ -203,7 +203,7 @@ module Sigh
     
     def each
       hosts = Array.new
-      @redis.keys(Sigh::P + Sigh::S + '*').each do |key|
+      @redis.keys(Sigh::P + Sigh::S + '*').sort.each do |key|
         host = key.split(Sigh::S)[1]
         hosts << host unless hosts.include? host
       end
@@ -232,7 +232,7 @@ module Sigh
     def collectors
       coll = Hash.new
 
-      @redis.keys(Sigh::P + Sigh::S + @name + Sigh::S + '*' + Sigh::S + 'upper_bound').each do |key|
+      @redis.keys(Sigh::P + Sigh::S + @name + Sigh::S + '*' + Sigh::S + 'upper_bound').sort.each do |key|
         collector, name = key.split(Sigh::S)[2], key.split(Sigh::S)[3]
         upper_bound = @redis.get(Sigh::P + Sigh::S + @name + Sigh::S + collector + Sigh::S + name + Sigh::S + 'upper_bound')
         coll[collector] = Array.new unless coll[collector]
@@ -242,7 +242,7 @@ module Sigh
         }
       end
 
-      coll
+      coll.sort
     end
   end
 end
