@@ -4,3 +4,4 @@ syntax: glob
 *~
 run/*.log
 run/*.pid
+collectors_enabled/*.rb

@@ -13,7 +13,7 @@ module Sigh
   # The paths used in Sigh
   PATH = File.expand_path File.join(File.dirname(__FILE__), '..', 'bin')
   COLLECTOR_RUNDIR = File.expand_path File.join(File.dirname(__FILE__), '..', 'run')
-  COLLECTORS = File.expand_path File.join(File.dirname(__FILE__), '..', 'collectors')
+  COLLECTORS = File.expand_path File.join(File.dirname(__FILE__), '..', 'collectors_enabled')
   
   # The number of measurements stored for each graph
   # Default: 720 (every five seconds a measurement for an hour)
