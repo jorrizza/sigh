@@ -53,6 +53,8 @@ get '/:host/:type/:name/:graph' do
     return measurement.latest_value.to_json
   when 'last_time'
     return measurement.last_time.to_json
+  when 'unit'
+    return measurement.unit.to_json
   else
     call = (params[:graph] + '_values').to_sym
     if measurement.respond_to? call
@@ -74,7 +76,6 @@ get '/:host/:type/:name/' do
 
   # Set the title, interval and label
   @grapher = request.env['PATH_INFO'].sub(/^\//, '').sub(/\/$/, '')
-  @label = measurement.unit
   @interval = Sigh::INTERVAL
 
   @hosts = Array.new

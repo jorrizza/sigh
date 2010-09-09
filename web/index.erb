@@ -16,13 +16,23 @@
 <p>
   <label for="first_collector">First collector:</label>
   <select id="first_collector">
-    <option>blah/blah/blah</option>
-    <option>bloh/blah/bloh</option>
+    <% @hosts.each do |host| %>
+      <% host[:collectors].each do |type, collectors| %>
+        <% collectors.each do |collector| %>
+          <option><%=h(host[:name] + '/' + type + '/' + collector[:name]) %></option>
+        <% end %>
+      <% end %>
+    <% end %>
   </select>
   <label for="second_collector">Second collector:</label>
   <select id="second_collector">
-    <option>blah/blah/blah</option>
-    <option>bloh/blah/bloh</option>
+    <% @hosts.each do |host| %>
+      <% host[:collectors].each do |type, collectors| %>
+        <% collectors.each do |collector| %>
+          <option><%=h(host[:name] + '/' + type + '/' + collector[:name]) %></option>
+        <% end %>
+      <% end %>
+    <% end %>
   </select>
   <label for="combine_scope">Scope:</label>
   <select id="combine_scope">
@@ -34,3 +44,4 @@
   </select>
   <button id="combine_collectors">Combine</button>
 </p>
+<div id="combine" class="graph"></div>

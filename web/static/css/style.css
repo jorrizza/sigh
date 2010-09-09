@@ -88,3 +88,9 @@ div.graph {
   height:350px;
   width:720px;
 }
+#first_collector {
+  background-color: #AAAAFF;
+}
+#second_collector {
+  background-color: #FFAAAA;
+}
