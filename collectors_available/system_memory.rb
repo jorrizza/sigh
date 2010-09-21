@@ -7,7 +7,7 @@ Sigh::Collector.collects do
   upper_bound lambda {
     value = nil
     
-    File.read('/proc/meminfo').each do |line|
+    File.read('/proc/meminfo').each_line do |line|
       value = line.split[1].to_f if line.start_with? 'MemTotal:'
     end
     
@@ -17,7 +17,7 @@ Sigh::Collector.collects do
   measure do
     memtotal, memfree = nil, nil
     
-    File.read('/proc/meminfo').each do |line|
+    File.read('/proc/meminfo').each_line do |line|
       memfree = line.split[1].to_f if line.start_with? 'MemFree:'
       memtotal = line.split[1].to_f if line.start_with? 'MemTotal:'      
     end

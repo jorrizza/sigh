@@ -7,7 +7,7 @@ Sigh::Collector.collects do
   upper_bound lambda {
     value = nil
     
-    File.read('/proc/meminfo').each do |line|
+    File.read('/proc/meminfo').each_line do |line|
       value = line.split[1].to_f if line.start_with? 'SwapTotal:'
     end
     
@@ -17,7 +17,7 @@ Sigh::Collector.collects do
   measure do
     swaptotal, swapfree = nil, nil
     
-    File.read('/proc/meminfo').each do |line|
+    File.read('/proc/meminfo').each_line do |line|
       swapfree = line.split[1].to_f if line.start_with? 'SwapFree:'
       swaptotal = line.split[1].to_f if line.start_with? 'SwapTotal:'      
     end
