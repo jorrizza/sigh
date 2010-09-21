@@ -10,7 +10,7 @@ Sigh::Collector.collects do
     first, second = nil, nil
 
     2.times do
-      File.read('/proc/net/dev').each_lines do |line|
+      File.read('/proc/net/dev').each_line do |line|
         line.strip!
         if line.start_with? 'eth0'
           unless first
