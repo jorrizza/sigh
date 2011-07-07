@@ -3,17 +3,17 @@
 # called dynamically through a web GUI.
 
 require 'time'
-require 'rubygems'
 require 'redis'
-require File.join(File.dirname(__FILE__), '..', 'settings.rb')
+require 'psych'
 
 module Sigh
-  include SighSettings
+  # Configuration
+  REDIS = Psych.load_file File.join(File.dirname(__FILE__), '..', 'settings.yml')
 
   # The paths used in Sigh
-  PATH = File.expand_path File.join(File.dirname(__FILE__), '..', 'bin')
-  COLLECTOR_RUNDIR = File.expand_path File.join(File.dirname(__FILE__), '..', 'run')
-  COLLECTORS = File.expand_path File.join(File.dirname(__FILE__), '..', 'collectors_enabled')
+  PATH = File.join File.dirname(__FILE__), '..', 'bin'
+  COLLECTOR_RUNDIR = File.join File.dirname(__FILE__), '..', 'run'
+  COLLECTORS = File.join File.dirname(__FILE__), '..', 'collectors_enabled'
   
   # The number of measurements stored for each graph
   # Default: 720 (every five seconds a measurement for an hour)
@@ -32,8 +32,7 @@ module Sigh
       begin
         @redis.ping
       rescue
-        $stderr.puts "Sigh can't talk to Redis: #{$!}\n"
-        exit 1
+        raise "Sigh can't talk to Redis: #{$!}"
       end
 
       # We make sure the storage is what we expect it to be.
@@ -56,7 +55,8 @@ module Sigh
     # Unused, but may come in handy.
     # Clean up our measurement.
     def cleanup
-      ['hourly', 'daily', 'weekly', 'monthly', 'yearly', 'i', 'last_time', 'upper_bound', 'unit'].each do |subkey|
+      %w{hourly daily weekly monthly yearly i
+         last_time upper_bound unit}.each do |subkey|
         @redis.del key(subkey)
       end
     end
@@ -196,8 +196,7 @@ module Sigh
       begin
         @redis.ping
       rescue
-        $stderr.puts "Sigh can't talk to Redis: #{$!}\n"
-        exit 1
+        raise "Sigh can't talk to Redis: #{$!}"
       end
     end
     
@@ -221,8 +220,7 @@ module Sigh
       begin
         @redis.ping
       rescue
-        $stderr.puts "Sigh can't talk to Redis: #{$!}\n"
-        exit 1
+        raise "Sigh can't talk to Redis: #{$!}"
       end
 
       @name = name
