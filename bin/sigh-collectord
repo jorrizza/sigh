@@ -1,20 +1,21 @@
 #!/usr/bin/env ruby
 
 $:.push File.join(File.dirname(__FILE__), '..', 'lib')
-require 'collector_em'
+require 'sigh/collector_em'
 require 'daemons'
+require 'etc'
 
-# Daemonize
-options = {
-  :dir_mode => :normal,
-  :dir => Sigh::COLLECTOR_RUNDIR,
-  :multiple => false,
-  :ontop => false,
-  :mode => :exec,
-  :backtrace => true,
-  :monitor => false
-}
-Daemons.run_proc 'sigh-collectord', options do
-  # And run the collector daemon code
+# Drop privileges if required
+Process::Sys.setuid Etc.getpwnam(ENV['SIGH_USER']).uid if ENV['SIGH_USER']
+
+# And run the collector daemon code
+Daemons.run_proc('sigh-collectord',
+                 dir_mode: :normal,
+                 dir: Sigh::COLLECTOR_RUNDIR,
+                 multiple: false,
+                 ontop: false,
+                 mode: :exec,
+                 backtrace: true,
+                 monitor: false) do
   Sigh::CollectorDaemon.run
 end

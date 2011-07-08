@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 $:.push File.join(File.dirname(__FILE__), '..', 'lib')
-require 'rubygems'
 require 'sinatra'
 require 'json'
 require 'sigh'
@@ -28,8 +27,8 @@ get '/' do
   Sigh::HostList.new.each do |hostname|
     host = Sigh::Host.new hostname
     @hosts << {
-      :name => hostname,
-      :collectors => host.collectors
+      name: hostname,
+      collectors: host.collectors
     }
   end
   
@@ -42,7 +41,8 @@ get '/:host/:type/:name/:graph' do
   
   # Measurement get
   begin
-    measurement = Sigh::Measurement.new params[:host], params[:type], params[:name]
+    measurement = Sigh::Measurement.new(params[:host], params[:type],
+                                        params[:name])
   rescue
     halt 500, $!
   end
@@ -69,7 +69,8 @@ end
 get '/:host/:type/:name/' do
   # Measurement get
   begin
-    measurement = Sigh::Measurement.new params[:host], params[:type], params[:name]
+    measurement = Sigh::Measurement.new(params[:host], params[:type],
+                                        params[:name])
   rescue
     halt 500, $!
   end
@@ -82,8 +83,8 @@ get '/:host/:type/:name/' do
   Sigh::HostList.new.each do |hostname|
     host = Sigh::Host.new hostname
     @hosts << {
-      :name => hostname,
-      :collectors => host.collectors
+      name: hostname,
+      collectors: host.collectors
     }
   end
 
@@ -91,3 +92,6 @@ get '/:host/:type/:name/' do
   
   erb :grapher
 end
+
+# Run the web server when called from the command line.
+Sinatra::Application.run! if $0 != __FILE__

@@ -4,7 +4,7 @@
 #
 
 $:.push File.join(File.dirname(__FILE__), '..', 'lib')
-require 'collector'
+require 'sigh/collector'
 
 unless ARGV[0]
   $stderr.puts "Sigh collector runner.\nUsage: #{$0} [collector] [--dryrun | --monitor | ]"

@@ -59,7 +59,10 @@ nav h3 {
   margin:0px 0px 0px 30px;
   font-weight:bold;
   font-size:12pt;
-  text-shadow:1px 1px 1px #CCCCCC;  
+  text-shadow:1px 1px 1px #CCCCCC;
+}
+nav p {
+  padding: 4px;
 }
 nav a:hover, nav a:link, nav a:active, nav a:visited {
   margin:0px 0px 0px 40px;

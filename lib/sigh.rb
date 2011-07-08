@@ -8,12 +8,24 @@ require 'psych'
 
 module Sigh
   # Configuration
-  REDIS = Psych.load_file File.join(File.dirname(__FILE__), '..', 'settings.yml')
+  begin
+    REDIS = Psych.load_file '/etc/sigh/settings.yml'
+  rescue Errno::ENOENT
+    REDIS = Psych.load_file File.join(File.dirname(__FILE__),
+                                      '..', 'settings.yml')
+  end
 
   # The paths used in Sigh
-  PATH = File.join File.dirname(__FILE__), '..', 'bin'
-  COLLECTOR_RUNDIR = File.join File.dirname(__FILE__), '..', 'run'
-  COLLECTORS = File.join File.dirname(__FILE__), '..', 'collectors_enabled'
+  if File.directory? '/var/run/sigh'
+    COLLECTOR_RUNDIR = '/var/run/sigh'
+  else
+    COLLECTOR_RUNDIR = '/tmp'
+  end
+  if File.directory? '/etc/sigh/collectors'
+    COLLECTORS = '/etc/sigh/collectors'
+  else
+    COLLECTORS = File.join File.dirname(__FILE__), '..', 'collectors_enabled'
+  end
   
   # The number of measurements stored for each graph
   # Default: 720 (every five seconds a measurement for an hour)
@@ -37,7 +49,7 @@ module Sigh
 
       # We make sure the storage is what we expect it to be.
       # It makes the store and *_value functions a lot easier.
-      ['hourly', 'daily', 'weekly', 'monthly', 'yearly'].each do |subkey|
+      %w{hourly daily weekly monthly yearly}.each do |subkey|
         subkey_len = @redis.llen key(subkey)
         if subkey_len != Sigh::RESOLUTION
           @redis.del key(subkey)
@@ -48,8 +60,8 @@ module Sigh
       end
 
       # Set the unit and upper bound
-      @redis.set key('unit'), unit if unit
-      @redis.set key('upper_bound'), upper_bound if upper_bound
+      @redis.set key(:unit), unit if unit
+      @redis.set key(:upper_bound), upper_bound if upper_bound
     end
 
     # Unused, but may come in handy.
@@ -63,74 +75,74 @@ module Sigh
 
     def store(value)
       # Last access time, used in GUI.
-      @redis.set key('last_time'), Time.now.to_s
+      @redis.set key(:last_time), Time.now.to_s
       
       # The incrementer, used by the following code.
-      i = @redis.incr key('i')
+      i = @redis.incr key(:i)
 
       # Update hourly values.
-      @redis.lpop key('hourly')
-      @redis.rpush key('hourly'), value
+      @redis.lpop key(:hourly)
+      @redis.rpush key(:hourly), value
 
       # Update daily values.
       if i.modulo(24) == 0
-        @redis.lpop key('daily')
+        @redis.lpop key(:daily)
         value = 0.0
-        @redis.lrange(key('hourly'), -24, -1).each do |v|
+        @redis.lrange(key(:hourly), -24, -1).each do |v|
           value += v.to_f
         end
         value /= 24
-        @redis.rpush key('daily'), value
+        @redis.rpush key(:daily), value
       end
 
       # Update weekly values.
       if i.modulo(168) == 0
-        @redis.lpop key('weekly')
+        @redis.lpop key(:weekly)
         value = 0.0
-        @redis.lrange(key('daily'), -7, -1).each do |v|
+        @redis.lrange(key(:daily), -7, -1).each do |v|
           value += v.to_f
         end
         value /= 7
-        @redis.rpush key('weekly'), value
+        @redis.rpush key(:weekly), value
       end
 
       # Update monthly values.
       if i.modulo(720) == 0 # 30 days
-        @redis.lpop key('monthly')
+        @redis.lpop key(:monthly)
         value = 0.0
-        @redis.lrange(key('daily'), -30, -1).each do |v|
+        @redis.lrange(key(:daily), -30, -1).each do |v|
           value += v.to_f
         end
         value /= 30
-        @redis.rpush key('monthly'), value
+        @redis.rpush key(:monthly), value
       end
 
       # Update yearly values.
       if i.modulo(8640) == 0 # 360 days (works better with modulo)
-        @redis.lpop key('yearly')
+        @redis.lpop key(:yearly)
         value = 0.0
-        @redis.lrange(key('monthly'), -12, -1).each do |v|
+        @redis.lrange(key(:monthly), -12, -1).each do |v|
           value += v.to_f
         end
         value /= 12
-        @redis.rpush key('yearly'), value
+        @redis.rpush key(:yearly), value
       end
     end
 
     def last_time
-      last_time = @redis.get(key('last_time'))
+      last_time = @redis.get(key(:last_time))
       return Time.parse last_time if last_time
       Time.now # Probably...
     end
 
     def latest_value
-      @redis.lindex(key('hourly'), -1).to_f
+      @redis.lindex(key(:hourly), -1).to_f
     end
 
     def hourly_values
       tick = Sigh::INTERVAL
       time = last_time - Sigh::RESOLUTION * tick + last_time.utc_offset
-      @redis.lrange(key('hourly'), 0, -1).map do |v|
+      @redis.lrange(key(:hourly), 0, -1).map do |v|
         time += tick
         [time.to_i * 1000, v.to_f]
       end
@@ -139,7 +151,7 @@ module Sigh
     def daily_values
       tick = Sigh::INTERVAL * 24
       time = last_time - Sigh::RESOLUTION * tick + last_time.utc_offset
-      @redis.lrange(key('daily'), 0, -1).map do |v|
+      @redis.lrange(key(:daily), 0, -1).map do |v|
         time += tick
         [time.to_i * 1000, v.to_f]
       end
@@ -148,7 +160,7 @@ module Sigh
     def weekly_values
       tick = Sigh::INTERVAL * 168
       time = last_time - Sigh::RESOLUTION * tick + last_time.utc_offset
-      @redis.lrange(key('weekly'), 0, -1).map do |v|
+      @redis.lrange(key(:weekly), 0, -1).map do |v|
         time += tick
         [time.to_i * 1000, v.to_f]
       end
@@ -157,7 +169,7 @@ module Sigh
     def monthly_values
       tick = Sigh::INTERVAL * 720
       time = last_time - Sigh::RESOLUTION * tick + last_time.utc_offset
-      @redis.lrange(key('monthly'), 0, -1).map do |v|
+      @redis.lrange(key(:monthly), 0, -1).map do |v|
         time += tick
         [time.to_i * 1000, v.to_f]
       end
@@ -166,14 +178,14 @@ module Sigh
     def yearly_values
       tick = Sigh::INTERVAL * 8640
       time = last_time - Sigh::RESOLUTION * tick - last_time.utc_offset
-      @redis.lrange(key('yearly'), 0, -1).map do |v|
+      @redis.lrange(key(:yearly), 0, -1).map do |v|
         time += tick
         [time.to_i * 1000, v.to_f]
       end
     end
 
     def unit
-      @redis.get key('unit')
+      @redis.get key(:unit)
     end
 
     # Be nice to Redis.
@@ -185,7 +197,7 @@ module Sigh
 
     # Simple helper function. Reduces strain on yours truly.
     def key(k)
-      @prefix + Sigh::S + k
+      @prefix + Sigh::S + k.to_s
     end
   end
 
@@ -193,6 +205,7 @@ module Sigh
   class HostList
     def initialize
       @redis = Redis.new Sigh::REDIS
+
       begin
         @redis.ping
       rescue
@@ -202,6 +215,7 @@ module Sigh
     
     def each
       hosts = Array.new
+
       @redis.keys(Sigh::P + Sigh::S + '*').sort.each do |key|
         host = key.split(Sigh::S)[1]
         hosts << host unless hosts.include? host
@@ -217,6 +231,7 @@ module Sigh
   class Host
     def initialize(name)
       @redis = Redis.new Sigh::REDIS
+
       begin
         @redis.ping
       rescue
@@ -230,13 +245,16 @@ module Sigh
     def collectors
       coll = Hash.new
 
-      @redis.keys(Sigh::P + Sigh::S + @name + Sigh::S + '*' + Sigh::S + 'upper_bound').sort.each do |key|
+      @redis.keys(Sigh::P + Sigh::S + @name + Sigh::S +
+                  '*' + Sigh::S + 'upper_bound').sort.each do |key|
         collector, name = key.split(Sigh::S)[2], key.split(Sigh::S)[3]
-        upper_bound = @redis.get(Sigh::P + Sigh::S + @name + Sigh::S + collector + Sigh::S + name + Sigh::S + 'upper_bound')
-        coll[collector] = Array.new unless coll[collector]
+        upper_bound = @redis.get(Sigh::P + Sigh::S + @name + Sigh::S +
+                                 collector + Sigh::S + name + Sigh::S +
+                                 'upper_bound')
+        coll[collector] ||= Array.new
         coll[collector] << {
-          :name => name,
-          :upper_bound => upper_bound.to_f
+          name: name,
+          upper_bound: upper_bound.to_f
         }
       end
 

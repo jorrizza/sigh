@@ -28,8 +28,14 @@
       </h1>
     </header>
     <nav>
+      <% if @hosts.empty? %>
+        <p>Sorry, no hosts can be found. Did you enable some collectors?</p>
+      <% end %>
       <% @hosts.each do |host| %>
         <h2><%=h host[:name] %></h2>
+        <% if host[:collectors].empty? %>
+          <p>No collectors for this host.</p>
+        <% end %>
         <% host[:collectors].each do |type, collectors| %>
           <h3><%=h type %></h3>
           <% collectors.each do |collector| %>
